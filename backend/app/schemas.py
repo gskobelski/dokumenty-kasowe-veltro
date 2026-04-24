@@ -151,3 +151,8 @@ class ExportResponse(BaseModel):
     content: str
     exported_count: int
 
+
+class PrepareExportResponse(BaseModel):
+    total_bank_documents: int
+    ready_count: int
+    blocked_count: int

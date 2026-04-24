@@ -2,6 +2,7 @@ import type {
   AppSettings,
   CashDocument,
   ImportResponse,
+  PrepareExportResponse,
   ValidationErrorSummary,
 } from "../components/types";
 
@@ -19,6 +20,17 @@ export async function getSettings(): Promise<AppSettings> {
   return parseJson<AppSettings>(
     await fetch(`${API_BASE_URL}/api/settings`, { cache: "no-store" }),
   );
+}
+
+export async function saveSettings(payload: AppSettings): Promise<AppSettings> {
+  const response = await fetch(`${API_BASE_URL}/api/settings`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+  return parseJson<AppSettings>(response);
 }
 
 export async function listDocuments(
@@ -54,4 +66,11 @@ export async function importBank(file: File): Promise<ImportResponse> {
     body: formData,
   });
   return parseJson<ImportResponse>(response);
+}
+
+export async function prepareBankExport(): Promise<PrepareExportResponse> {
+  const response = await fetch(`${API_BASE_URL}/api/export/prepare-bank`, {
+    method: "POST",
+  });
+  return parseJson<PrepareExportResponse>(response);
 }

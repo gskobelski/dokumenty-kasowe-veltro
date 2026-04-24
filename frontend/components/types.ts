@@ -74,3 +74,9 @@ export type ImportResponse = {
   review_required: number;
   unsupported: number;
 };
+
+export type PrepareExportResponse = {
+  total_bank_documents: number;
+  ready_count: number;
+  blocked_count: number;
+};

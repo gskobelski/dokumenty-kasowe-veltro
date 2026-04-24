@@ -1,4 +1,5 @@
 import { AppShell } from "../../components/app-shell";
+import { SettingsForm } from "../../components/settings-form";
 import { getSettings } from "../../lib/api";
 
 export default async function SettingsPage() {
@@ -9,15 +10,7 @@ export default async function SettingsPage() {
       title="Ustawienia podstawowe"
       subtitle="Dane firmy, kasy i stalego podmiotu bankowego wykorzystywane w eksporcie EPP."
     >
-      <section className="panel stack">
-        <h3>Biezace ustawienia</h3>
-        {settings ? (
-          <pre>{JSON.stringify(settings, null, 2)}</pre>
-        ) : (
-          <p className="muted">Backend nie odpowiada albo ustawienia nie zostaly jeszcze zapisane.</p>
-        )}
-      </section>
+      <SettingsForm initialSettings={settings} />
     </AppShell>
   );
 }
-

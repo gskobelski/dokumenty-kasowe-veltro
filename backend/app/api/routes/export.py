@@ -6,6 +6,7 @@ from fastapi.responses import PlainTextResponse
 from app.api.deps import get_db
 from app.config import get_settings
 from app.db import Database
+from app.schemas import PrepareExportResponse
 from app.services.epp import render_epp
 
 router = APIRouter(tags=["export"])
@@ -20,3 +21,7 @@ def export_epp(db: Database = Depends(get_db)) -> PlainTextResponse:
     headers = {"Content-Disposition": 'attachment; filename="cash-documents.epp"'}
     return PlainTextResponse(payload, media_type="text/plain; charset=windows-1250", headers=headers)
 
+
+@router.post("/prepare-bank", response_model=PrepareExportResponse)
+def prepare_bank_export(db: Database = Depends(get_db)) -> PrepareExportResponse:
+    return db.prepare_bank_documents_for_export()

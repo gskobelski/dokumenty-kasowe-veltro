@@ -14,6 +14,7 @@ from app.schemas import (
     CashDocumentRead,
     CashDocumentUpdate,
     ImportSessionSummary,
+    PrepareExportResponse,
     ValidationStatus,
 )
 from app.services.validation import derive_validation_status, validate_document
@@ -359,6 +360,43 @@ class Database:
                 (ValidationStatus.VALID.value,),
             ).fetchall()
         return [self._row_to_document(dict(row)) for row in rows]
+
+    def prepare_bank_documents_for_export(self) -> PrepareExportResponse:
+        settings = self.get_settings()
+        bank_documents = [
+            document
+            for document in self.list_cash_documents({})
+            if document.source_type == "bank"
+        ]
+
+        for document in bank_documents:
+            payload = CashDocumentUpdate(
+                recipient_name_short=document.recipient_name_short or settings.bank_party_name_short,
+                recipient_name_full=document.recipient_name_full or settings.bank_party_name_full,
+                recipient_city=document.recipient_city or settings.bank_party_city,
+                recipient_postal_code=document.recipient_postal_code or settings.bank_party_postal_code,
+                recipient_address_line=document.recipient_address_line or settings.bank_party_address_line,
+                recipient_tax_id=document.recipient_tax_id or settings.bank_party_tax_id,
+                ready_for_export=True,
+            )
+            self.update_cash_document(document.id, payload)
+
+        refreshed = [
+            document
+            for document in self.list_cash_documents({})
+            if document.source_type == "bank"
+        ]
+        ready_count = sum(
+            1
+            for document in refreshed
+            if document.ready_for_export and document.validation_status == ValidationStatus.VALID
+        )
+        blocked_count = len(refreshed) - ready_count
+        return PrepareExportResponse(
+            total_bank_documents=len(refreshed),
+            ready_count=ready_count,
+            blocked_count=blocked_count,
+        )
 
     def list_validation_errors(self) -> dict[str, int]:
         counters: dict[str, int] = {}
