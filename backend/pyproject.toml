@@ -1,0 +1,16 @@
+[project]
+name = "cash-documents-backend"
+version = "0.1.0"
+description = "MVP backend for KP/KW cash documents and EPP export"
+requires-python = ">=3.13"
+dependencies = [
+  "fastapi>=0.115.0",
+  "pydantic>=2.0.0",
+  "uvicorn>=0.30.0",
+  "openpyxl>=3.1.0",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+
