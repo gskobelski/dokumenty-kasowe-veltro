@@ -17,11 +17,18 @@ MVP aplikacji do obslugi dokumentow kasowych KP/KW dla biura ksiegowego.
 
 ## Backend
 
-Uruchomienie lokalne po zainstalowaniu zaleznosci:
+Uruchomienie developerskie przez Docker Compose:
 
 ```bash
 cd backend
-python3 -m uvicorn app.main:app --reload
+docker compose up
+```
+
+Po zmianie zaleznosci albo plikow obrazu:
+
+```bash
+cd backend
+docker compose up --build
 ```
 
 Testy backendu:
@@ -39,6 +46,12 @@ Uruchomienie lokalne po zainstalowaniu zaleznosci:
 cd frontend
 npm install
 npm run dev
+```
+
+Frontend domyslnie laczy sie z backendem na:
+
+```text
+http://localhost:8000
 ```
 
 ## Eksport EPP

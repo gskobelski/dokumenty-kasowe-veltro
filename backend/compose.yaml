@@ -1,0 +1,10 @@
+services:
+  backend:
+    build:
+      context: .
+    environment:
+      DATABASE_PATH: /app/cash_documents.db
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
