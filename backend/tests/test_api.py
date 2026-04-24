@@ -51,3 +51,23 @@ async def test_settings_can_be_updated(tmp_path):
         )
     assert response.status_code == 200
     assert response.json()["company_name"] == "Biuro Test"
+
+
+@pytest.mark.anyio
+async def test_bank_import_accepts_cp1250_mbank_csv(tmp_path):
+    payload = """
+mBank S.A. Bankowość Detaliczna;
+
+#Data księgowania;#Data operacji;#Opis operacji;#Tytuł;#Nadawca/Odbiorca;#Numer konta;#Kwota;#Saldo po operacji;
+2026-03-10;2026-03-10;BLIK WYPŁATA ATM WŁASNY;mbank; ;'';-4000,00;32000,00;
+""".strip().encode("cp1250")
+
+    async with build_client(tmp_path) as client:
+        response = await client.post(
+            "/api/imports/bank",
+            files={"file": ("mbank.csv", payload, "text/csv")},
+        )
+
+    assert response.status_code == 200
+    assert response.json()["documents_created"] == 1
+    assert response.json()["unsupported"] == 0

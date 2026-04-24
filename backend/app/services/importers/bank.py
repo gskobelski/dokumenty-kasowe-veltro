@@ -12,7 +12,16 @@ def parse_bank_rows(rows: list[dict[str, object]], settings: AppSettings) -> Imp
     result = ImportResult()
     for index, row in enumerate(rows):
         operation_date = find_value(row, ["data operacji", "data", "operation date"])
-        description = normalize_text(find_value(row, ["opis", "tytul", "description", "title"]))
+        description = normalize_text(
+            " ".join(
+                value
+                for value in [
+                    find_value(row, ["opis operacji", "opis", "description"]),
+                    find_value(row, ["tytul", "title"]),
+                ]
+                if value
+            )
+        )
         amount_raw = find_value(row, ["kwota", "amount", "wartosc"])
 
         document_type = _classify_bank_row(description)
@@ -65,13 +74,33 @@ def parse_bank_rows(rows: list[dict[str, object]], settings: AppSettings) -> Imp
 
 
 def _classify_bank_row(description: str) -> CashDocumentType | None:
-    deposit_markers = ["wplata do bankomatu", "atm wplata", "deposit", "wplata"]
-    withdrawal_markers = ["wyplata z bankomatu", "atm wyplata", "withdrawal", "wyplata"]
-    if any(marker in description for marker in deposit_markers):
+    if any(marker in description for marker in ["prow.", "prowizja"]):
+        return None
+
+    if _looks_like_atm_deposit(description):
         return CashDocumentType.KP
-    if any(marker in description for marker in withdrawal_markers):
+    if _looks_like_atm_withdrawal(description):
         return CashDocumentType.KW
     return None
+
+
+def _looks_like_atm_deposit(description: str) -> bool:
+    deposit_markers = ["wplata do bankomatu", "wplata w bankomacie", "atm wplata", "deposit"]
+    if any(marker in description for marker in deposit_markers):
+        return True
+    return "wplata" in description and ("atm" in description or "bankomat" in description)
+
+
+def _looks_like_atm_withdrawal(description: str) -> bool:
+    withdrawal_markers = [
+        "wyplata z bankomatu",
+        "wyplata w bankomacie",
+        "atm wyplata",
+        "withdrawal",
+    ]
+    if any(marker in description for marker in withdrawal_markers):
+        return True
+    return "wyplata" in description and ("atm" in description or "bankomat" in description)
 
 
 def _build_title(document_type: CashDocumentType, issue_date) -> str:
@@ -93,4 +122,3 @@ def _parse_date(value: str):
         except ValueError:
             continue
     return datetime.utcnow().date()
-

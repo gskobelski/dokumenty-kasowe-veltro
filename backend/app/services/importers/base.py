@@ -1,10 +1,25 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
+import unicodedata
+
+
+def _strip_accents(value: str) -> str:
+    normalized = unicodedata.normalize("NFKD", value)
+    stripped = "".join(ch for ch in normalized if not unicodedata.combining(ch))
+    return stripped.translate(
+        str.maketrans(
+            {
+                "ł": "l",
+                "Ł": "L",
+            }
+        )
+    )
 
 
 def normalize_key(value: str) -> str:
-    return "".join(ch.lower() for ch in value if ch.isalnum())
+    stripped = _strip_accents(value)
+    return "".join(ch.lower() for ch in stripped if ch.isalnum())
 
 
 def find_value(row: dict[str, object], candidates: Iterable[str]) -> str:
@@ -18,5 +33,5 @@ def find_value(row: dict[str, object], candidates: Iterable[str]) -> str:
 
 
 def normalize_text(value: str) -> str:
-    return " ".join(value.lower().split())
-
+    stripped = _strip_accents(value)
+    return " ".join(stripped.lower().split())
