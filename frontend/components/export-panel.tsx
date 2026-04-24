@@ -1,3 +1,5 @@
+import { API_BASE_URL } from "../lib/api";
+
 export function ExportPanel() {
   return (
     <section className="panel stack">
@@ -8,7 +10,7 @@ export function ExportPanel() {
         <code>/api/export/epp</code>.
       </p>
       <div className="button-row">
-        <a className="button" href="http://localhost:8000/api/export/epp">
+        <a className="button" href={`${API_BASE_URL}/api/export/epp`}>
           Pobierz .epp
         </a>
       </div>
@@ -18,4 +20,3 @@ export function ExportPanel() {
     </section>
   );
 }
-

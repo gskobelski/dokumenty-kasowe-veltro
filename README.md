@@ -51,7 +51,7 @@ npm run dev
 Frontend domyslnie laczy sie z backendem na:
 
 ```text
-http://localhost:8000
+http://localhost:8001
 ```
 
 ## Eksport EPP
